@@ -41,7 +41,7 @@ public class SecurityConfiguration {
 
     @Bean
     GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        var admins = List.of("AntoineHazebrouck");
+        var admins = List.of("AntoineHazebrouck", "milan-dlz");
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
