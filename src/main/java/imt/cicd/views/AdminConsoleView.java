@@ -8,6 +8,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import imt.cicd.data.BuildDockerImage;
 import imt.cicd.data.CloneRepository;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -22,18 +24,19 @@ public class AdminConsoleView extends Composite<VerticalLayout> {
 
         var row1 = new HorizontalLayout(
             new Button("deploy 'archi-project'", event -> {
-                var ok = CloneRepository.run(
-                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
-                );
+                var example =
+                    "https://github.com/AntoineHazebrouckOrg/archi-project.git";
+                var cloneResult = CloneRepository.run(example);
 
-                if (ok) Notification.show(
-                    "Cloned " +
-                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
+                if (cloneResult.getStatus()) Notification.show(
+                    "Cloned " + example
                 );
-                else Notification.show(
-                    "Failed to clone " +
-                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
-                );
+                else Notification.show("Failed to clone " + example);
+
+                var buildResult = BuildDockerImage.run(cloneResult.getFolder());
+
+                if (buildResult) Notification.show("Built " + example);
+                else Notification.show("Failed to build " + example);
             })
         );
 
