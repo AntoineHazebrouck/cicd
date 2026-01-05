@@ -28,7 +28,7 @@ public class AdminConsoleView extends Composite<VerticalLayout> {
                     "https://github.com/AntoineHazebrouckOrg/archi-project.git";
                 var cloneResult = CloneRepository.run(example);
 
-                if (cloneResult.getStatus()) Notification.show(
+                if (cloneResult.isStatus()) Notification.show(
                     "Cloned " + example
                 );
                 else Notification.show("Failed to clone " + example);
