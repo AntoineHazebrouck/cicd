@@ -9,12 +9,23 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
 import java.util.Collections;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BuildDockerImage {
 
-    public static boolean run(String folder) {
+    @Builder
+    @Getter
+    public static class BuildDockerImageResult {
+
+        private final String image;
+        private final String imageTag;
+        private final boolean status;
+    }
+
+    public static BuildDockerImageResult run(String folder) {
         try {
             DockerClientConfig config =
                 DefaultDockerClientConfig.createDefaultConfigBuilder().build();
@@ -48,11 +59,15 @@ public class BuildDockerImage {
 
             log.info("Successfully built image: " + imageId);
 
-            return true;
+            return BuildDockerImageResult.builder()
+                .status(true)
+                .image(imageId)
+                .imageTag(imageName)
+                .build();
         } catch (Exception e) {
             log.info("Error building {}", folder, e);
 
-            return false;
+            return BuildDockerImageResult.builder().status(false).build();
         }
     }
 }
