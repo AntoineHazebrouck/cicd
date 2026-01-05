@@ -1,4 +1,4 @@
-package imt.cicd;
+package imt.cicd.views;
 
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

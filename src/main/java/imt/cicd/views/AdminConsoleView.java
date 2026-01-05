@@ -1,14 +1,16 @@
-package imt.cicd;
+package imt.cicd.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
-@Route
+@Route("admin-console")
 @RolesAllowed("ADMIN")
-public class MainView extends Composite<VerticalLayout> {
+@PageTitle("Admin console")
+public class AdminConsoleView extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
