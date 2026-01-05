@@ -3,9 +3,9 @@ package imt.cicd;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
-import com.vaadin.flow.router.RouterLink;
 import imt.cicd.views.AdminConsoleView;
 import imt.cicd.views.ConsoleView;
 import jakarta.annotation.security.PermitAll;
@@ -20,15 +20,11 @@ public class MainLayout extends AppLayout {
         title.getStyle().set("margin", "0");
         addToNavbar(toggle, title);
 
-        RouterLink about = new RouterLink(
-            "Admin console",
-            AdminConsoleView.class
-        );
-        RouterLink home = new RouterLink("Console", ConsoleView.class);
+        var nav = new SideNav();
+        nav.addItem(new SideNavItem("Console", ConsoleView.class));
+        nav.addItem(new SideNavItem("Admin console", AdminConsoleView.class));
 
-        VerticalLayout drawer = new VerticalLayout(home, about);
-        drawer.setPadding(false);
-        drawer.setSpacing(false);
-        addToDrawer(drawer);
+        addToDrawer(nav);
+        setDrawerOpened(false);
     }
 }
