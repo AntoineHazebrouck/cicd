@@ -39,7 +39,7 @@ public class AdminConsoleView extends Composite<VerticalLayout> {
             })
         );
 
-        col.add(new H1("Hello world"), row1);
+        col.add(new H1("Admin console"), row1);
         return col;
     }
 }

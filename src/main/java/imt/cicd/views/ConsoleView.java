@@ -14,6 +14,6 @@ public class ConsoleView extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        return new VerticalLayout(new H1("qsdq"));
+        return new VerticalLayout(new H1("Console"));
     }
 }

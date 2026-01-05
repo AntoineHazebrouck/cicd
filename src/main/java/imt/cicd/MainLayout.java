@@ -16,7 +16,7 @@ public class MainLayout extends AppLayout {
 
     public MainLayout() {
         DrawerToggle toggle = new DrawerToggle();
-        H1 title = new H1("CI/CD");
+        H1 title = new H1("CI/CD for AntoineHazebrouckOrg");
         title.getStyle().set("margin", "0");
         addToNavbar(toggle, title);
 
