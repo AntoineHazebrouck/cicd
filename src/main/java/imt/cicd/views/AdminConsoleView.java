@@ -1,11 +1,16 @@
 package imt.cicd.views;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import imt.cicd.data.CloneRepository;
 import jakarta.annotation.security.RolesAllowed;
+import java.io.File;
+import org.eclipse.jgit.api.Git;
 
 @Route("admin-console")
 @PageTitle("Admin console")
@@ -15,7 +20,16 @@ public class AdminConsoleView extends Composite<VerticalLayout> {
     @Override
     protected VerticalLayout initContent() {
         var col = new VerticalLayout();
-        col.add(new H1("Hello world"));
+
+        var row1 = new HorizontalLayout(
+            new Button("deploy 'archi-project'", event -> {
+                CloneRepository.run(
+                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
+                );
+            })
+        );
+
+        col.add(new H1("Hello world"), row1);
         return col;
     }
 }
