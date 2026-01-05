@@ -3,14 +3,13 @@ package imt.cicd.views;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import imt.cicd.data.CloneRepository;
 import jakarta.annotation.security.RolesAllowed;
-import java.io.File;
-import org.eclipse.jgit.api.Git;
 
 @Route("admin-console")
 @PageTitle("Admin console")
@@ -23,7 +22,16 @@ public class AdminConsoleView extends Composite<VerticalLayout> {
 
         var row1 = new HorizontalLayout(
             new Button("deploy 'archi-project'", event -> {
-                CloneRepository.run(
+                var ok = CloneRepository.run(
+                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
+                );
+
+                if (ok) Notification.show(
+                    "Cloned " +
+                    "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
+                );
+                else Notification.show(
+                    "Failed to clone " +
                     "https://github.com/AntoineHazebrouck/AntoineHazebrouck.git"
                 );
             })

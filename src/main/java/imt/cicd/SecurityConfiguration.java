@@ -26,12 +26,10 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // Apply Vaadin's default security rules (CSRF, Request Cache, etc.)
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
             configurer.loginView(LoginView.class);
         });
 
-        // Add GitHub OAuth2 login
         http.oauth2Login(oauth2 ->
             oauth2.loginPage("/login").defaultSuccessUrl("/", true)
         );
