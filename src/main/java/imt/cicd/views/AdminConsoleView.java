@@ -8,8 +8,8 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("admin-console")
-@RolesAllowed("ADMIN")
 @PageTitle("Admin console")
+@RolesAllowed("ADMIN")
 public class AdminConsoleView extends Composite<VerticalLayout> {
 
     @Override
