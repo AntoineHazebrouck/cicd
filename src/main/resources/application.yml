@@ -8,4 +8,7 @@ spring:
     github: 
       client-id: Ov23lilcth4KKgK4k4pn
       client-secret: 7ee2c03011e88d70375f6a0bddc428a76e33e42a
-      scope: read:user,user:email
+      scope: 
+        - read:user
+        - user:email
+        - repo

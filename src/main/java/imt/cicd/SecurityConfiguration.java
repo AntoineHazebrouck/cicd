@@ -3,7 +3,6 @@ package imt.cicd;
 import imt.cicd.views.LoginView;
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
