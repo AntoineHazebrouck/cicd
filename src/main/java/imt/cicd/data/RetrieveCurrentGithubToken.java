@@ -4,37 +4,42 @@ import imt.cicd.config.StaticIoc;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Slf4j
 public class RetrieveCurrentGithubToken {
 
     public static String run() {
-        var authorizedClientService = StaticIoc.getBean(
-            OAuth2AuthorizedClientService.class
+        Authentication auth = SecurityContextHolder.getContext()
+            .getAuthentication();
+        if (!(auth instanceof OAuth2AuthenticationToken oauthToken)) {
+            // Log if auth is null - this means the ThreadLocal is empty
+            log.error("Authentication is null or not OAuth2: {}", auth);
+            return null;
+        }
+
+        var clientManager = StaticIoc.getBean(
+            OAuth2AuthorizedClientManager.class
         );
 
-        Authentication authentication = SecurityContextHolder.getContext()
-            .getAuthentication();
+        OAuth2AuthorizeRequest request =
+            OAuth2AuthorizeRequest.withClientRegistrationId(
+                oauthToken.getAuthorizedClientRegistrationId()
+            )
+                .principal(auth)
+                .build();
 
-        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-            // "github" should match the registrationId in your application.yml
-            OAuth2AuthorizedClient client =
-                authorizedClientService.loadAuthorizedClient(
-                    oauthToken.getAuthorizedClientRegistrationId(),
-                    oauthToken.getName()
-                );
-            log.info("Retrieved oauth client : {}", client);
-
-            if (client != null && client.getAccessToken() != null) {
-                var token = client.getAccessToken().getTokenValue();
-                log.info("Retrieved github token : {}", token);
-                return token;
+        try {
+            OAuth2AuthorizedClient client = clientManager.authorize(request);
+            if (client != null) {
+                return client.getAccessToken().getTokenValue();
             }
+        } catch (Exception e) {
+            log.error("Failed to authorize/refresh GitHub token", e);
         }
-        log.error("Error retrieving github token : {}", authentication);
 
         return null;
     }

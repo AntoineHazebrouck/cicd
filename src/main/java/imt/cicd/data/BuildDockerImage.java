@@ -40,7 +40,7 @@ public class BuildDockerImage {
 
             String imageId = dockerClient
                 .buildImageCmd()
-                .withDockerfile(new File(folder))
+                .withDockerfile(new File(folder + "/" + "Dockerfile"))
                 .withPull(true) // Pull base images if missing
                 .withTags(Collections.singleton(imageName + ":latest"))
                 .exec(new BuildImageResultCallback())
