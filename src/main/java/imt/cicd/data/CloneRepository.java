@@ -70,6 +70,7 @@ public class CloneRepository {
         }
     }
 
+
     private static void deleteDirectory(Path path) throws IOException {
         if (Files.exists(path)) {
             try (Stream<Path> walk = Files.walk(path)) {
