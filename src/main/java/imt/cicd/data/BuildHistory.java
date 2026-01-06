@@ -25,7 +25,7 @@ public class BuildHistory {
     @Getter
     public static class BuildRecap {
 
-        private final Boolean status; // CLONE_FAIL, BUILD_FAIL, DEPLOY_FAIL, RUN_FAIL, SUCCESS
+        private final String status; // CLONE_FAIL, BUILD_FAIL, DEPLOY_FAIL, RUN_FAIL, SUCCESS
         private final String image;
         private final String imageTag;
         private final LocalDateTime time;
@@ -34,7 +34,7 @@ public class BuildHistory {
     @Data
     private static class BuildRecapDto {
 
-        private Boolean status;
+        private String status;
         private String image;
         private String imageTag;
         private String time;
@@ -99,7 +99,7 @@ public class BuildHistory {
             var json = new ObjectMapper();
             byte[] bytes = json.writeValueAsBytes(toDto(current));
             Files.write(PATH, bytes);
-            return current;
+            return history();
         } catch (IOException e) {
             throw new RuntimeException("Failed to write build history", e);
         }
