@@ -30,8 +30,10 @@ services:
       - sonar_logs:/opt/sonarqube/logs
     networks:
       - ci-network
-      -
   ci-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: my-ci-runner:latest
     container_name: ci-runner
     depends_on:
@@ -44,6 +46,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - ci-network
+    ports:
+      - "8080:8080"
 
 volumes:
   sonar_db:
