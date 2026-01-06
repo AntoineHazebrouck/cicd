@@ -2,9 +2,7 @@ package imt.cicd.data;
 
 import com.vaadin.flow.component.notification.Notification;
 import imt.cicd.data.BuildHistory.BuildRecap;
-import imt.cicd.sonarqube.*;
-
-import java.nio.file.Path;
+import imt.cicd.sonarqube.SonarQubeRun;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class FullPipeline {
 
-    public static List<BuildRecap> run(String githubRepoUrl) throws SonarQubeAnalysisException {
+    public static List<BuildRecap> run(String githubRepoUrl) {
         var cloneResult = CloneRepository.run(githubRepoUrl);
         if (cloneResult.isStatus()) Notification.show(
             "Cloned " + githubRepoUrl
@@ -21,10 +19,9 @@ public class FullPipeline {
 
         var sonarResult = SonarQubeRun.run(githubRepoUrl);
         if (sonarResult.isStatus()) Notification.show(
-                "SonarQube Scan Validate"
+            "SonarQube Scan Validate"
         );
         else Notification.show("Failed to pass SonarQube Scan ");
-
 
         var buildResult = BuildDockerImage.run(cloneResult.getFolder());
         if (buildResult.isStatus()) Notification.show("Built " + githubRepoUrl);
