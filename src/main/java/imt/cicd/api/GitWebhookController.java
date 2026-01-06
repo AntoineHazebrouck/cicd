@@ -1,16 +1,23 @@
 package imt.cicd.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import imt.cicd.data.CloneRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import imt.cicd.data.FullPipeline;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -53,8 +60,9 @@ public class GitWebhookController {
                 String ref = payload.path("ref").asText();
                 if ("refs/heads/main".equals(ref)) {
                     String repoUrl = payload.path("repository").path("clone_url").asText();
-                    log.info("Push authentifié sur main. Clonage de {}...", repoUrl);
-                    CloneRepository.run(repoUrl);
+                    log.info("Push authenticated on main. Running the pipeline for {}", repoUrl);
+
+                    FullPipeline.run(repoUrl);
                 }
             }
         } catch (Exception e) {
