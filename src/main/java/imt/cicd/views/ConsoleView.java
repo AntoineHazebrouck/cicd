@@ -1,10 +1,12 @@
 package imt.cicd.views;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import imt.cicd.views.components.PipelinesGrid;
 import jakarta.annotation.security.PermitAll;
 
 @Route("")
@@ -12,8 +14,16 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class ConsoleView extends Composite<VerticalLayout> {
 
+    private final PipelinesGrid pipelines = new PipelinesGrid();
+
     @Override
     protected VerticalLayout initContent() {
-        return new VerticalLayout(new H1("Console"));
+        return new VerticalLayout(
+            new H1("Console"),
+            new Button("Refresh", event -> {
+                pipelines.refresh();
+            }),
+            pipelines
+        );
     }
 }

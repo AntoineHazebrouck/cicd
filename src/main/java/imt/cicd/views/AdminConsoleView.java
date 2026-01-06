@@ -2,15 +2,12 @@ package imt.cicd.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import imt.cicd.data.BuildHistory;
-import imt.cicd.data.BuildHistory.BuildRecap;
 import imt.cicd.data.FullPipeline;
+import imt.cicd.views.components.PipelinesGrid;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("admin-console")
@@ -18,33 +15,23 @@ import jakarta.annotation.security.RolesAllowed;
 @RolesAllowed("ADMIN")
 public class AdminConsoleView extends Composite<VerticalLayout> {
 
-    private final Grid<BuildRecap> grid = new Grid<>(BuildRecap.class);
+    private final PipelinesGrid pipelines = new PipelinesGrid();
 
     @Override
     protected VerticalLayout initContent() {
-        refreshUi();
-
-        var col = new VerticalLayout();
-
-        var subcol = new VerticalLayout();
-        subcol.add(grid);
-
-        var row1 = new HorizontalLayout(
-            new Button("deploy 'archi-project'", event -> {
+        return new VerticalLayout(
+            new H1("Admin console"),
+            new Button("Run pipeline for 'archi-project'", event -> {
                 var example =
                     "https://github.com/AntoineHazebrouckOrg/archi-project";
 
                 FullPipeline.run(example);
-
-                refreshUi();
-            })
+                pipelines.refresh();
+            }),
+            new Button("Refresh", event -> {
+                pipelines.refresh();
+            }),
+            pipelines
         );
-
-        col.add(new H1("Admin console"), row1, grid);
-        return col;
-    }
-
-    private void refreshUi() {
-        grid.setItems(BuildHistory.history());
     }
 }
