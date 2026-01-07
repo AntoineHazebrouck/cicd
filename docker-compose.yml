@@ -47,14 +47,13 @@ services:
       DOCKER_HOST: unix:///var/run/docker.sock
     user: root
     volumes:
-      - ./logs:/app/logs
       - /var/run/docker.sock:/var/run/docker.sock
       - maven-cache:/root/.m2
     networks:
       - ci-network
     ports:
       - "8080:8080"
-      - "12375:12375" # prod VM exposes port 12375
+      - "12375:12375"
 
 volumes:
   sonar_db:
