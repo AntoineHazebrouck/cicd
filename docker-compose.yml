@@ -41,8 +41,8 @@ services:
     environment:
       SONAR_HOST_URL: http://sonarqube:9000
       SONAR_TOKEN: sqa_9ca0456b1809f3199e79cc88086c353f92b594aa
-      GITHUB_CICD_TOKEN: ...
-      GITHUB_WEBHOOK_SECRET: ...
+      GITHUB_CICD_TOKEN: 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
+      GITHUB_WEBHOOK_SECRET: lemeGasecreeeet
     volumes:
       - ./workspaces:/workspaces
       - /var/run/docker.sock:/var/run/docker.sock
@@ -50,6 +50,7 @@ services:
       - ci-network
     ports:
       - "8080:8080"
+      - "12375:12375" # prod VM exposes port 12375
 
 volumes:
   sonar_db:

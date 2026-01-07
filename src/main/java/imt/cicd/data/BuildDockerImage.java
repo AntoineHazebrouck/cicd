@@ -60,10 +60,16 @@ public class BuildDockerImage {
     }
 
     private static DockerClient dockerClient() {
+        var physicalMachineHost = "host.docker.internal";
         var vmForwardedPort = "12375";
         DockerClientConfig config =
             DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost("tcp://localhost:" + vmForwardedPort)
+                .withDockerHost(
+                    "tcp://%s:%s".formatted(
+                            physicalMachineHost,
+                            vmForwardedPort
+                        )
+                )
                 .build();
 
         DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
