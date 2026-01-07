@@ -27,19 +27,7 @@ public class BuildDockerImage {
 
     public static BuildDockerImageResult run(String folder) {
         try {
-            DockerClientConfig config =
-                DefaultDockerClientConfig.createDefaultConfigBuilder().build();
-
-            DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
-                .dockerHost(config.getDockerHost())
-                .sslConfig(config.getSSLConfig())
-                .maxConnections(100)
-                .build();
-
-            DockerClient dockerClient = DockerClientImpl.getInstance(
-                config,
-                httpClient
-            );
+            DockerClient dockerClient = dockerClient();
 
             var imageName = folder.split("/")[folder.split("/").length - 1];
 
@@ -69,5 +57,21 @@ public class BuildDockerImage {
 
             return BuildDockerImageResult.builder().status(false).build();
         }
+    }
+
+    private static DockerClient dockerClient() {
+        var vmForwardedPort = "12375";
+        DockerClientConfig config =
+            DefaultDockerClientConfig.createDefaultConfigBuilder()
+                .withDockerHost("tcp://localhost:" + vmForwardedPort)
+                .build();
+
+        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
+            .dockerHost(config.getDockerHost())
+            .sslConfig(config.getSSLConfig())
+            .maxConnections(100)
+            .build();
+
+        return DockerClientImpl.getInstance(config, httpClient);
     }
 }
