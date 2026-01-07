@@ -17,12 +17,13 @@ public class SonarQubeScannerService {
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "sonar-scanner",
+                    "mvn",
+                    "org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar",
                     "-Dsonar.projectKey=" + projectKey,
                     "-Dsonar.projectName=" + projectName,
-                    "-Dsonar.sources=.",
                     "-Dsonar.host.url=" + config.getHostUrl(),
-                    "-Dsonar.login=" + config.getToken()
+                    "-Dsonar.login=" + config.getToken(),
+                    "-Dsonar.java.binaries=target/classes"
             );
 
             processBuilder.directory(projectDir.toFile());

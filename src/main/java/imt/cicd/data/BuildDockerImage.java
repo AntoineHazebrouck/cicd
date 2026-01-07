@@ -27,8 +27,10 @@ public class BuildDockerImage {
 
     public static BuildDockerImageResult run(String folder) {
         try {
+            String dockerHost = "unix:///var/run/docker.sock";
+
             DockerClientConfig config =
-                DefaultDockerClientConfig.createDefaultConfigBuilder().build();
+                DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost(dockerHost).build();
 
             DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
                 .dockerHost(config.getDockerHost())

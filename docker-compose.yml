@@ -43,9 +43,13 @@ services:
       SONAR_TOKEN: sqa_9ca0456b1809f3199e79cc88086c353f92b594aa
       GITHUB_CICD_TOKEN: ...
       GITHUB_WEBHOOK_SECRET: ...
+      LOGGING_FILE_NAME: /app/logs/application.log
+      DOCKER_HOST: unix:///var/run/docker.sock
+    user: root
     volumes:
-      - ./workspaces:/workspaces
+      - ./logs:/app/logs
       - /var/run/docker.sock:/var/run/docker.sock
+      - maven-cache:/root/.m2
     networks:
       - ci-network
     ports:
@@ -56,6 +60,7 @@ volumes:
   sonar_data:
   sonar_extensions:
   sonar_logs:
+  maven-cache:
 
 networks:
   ci-network:

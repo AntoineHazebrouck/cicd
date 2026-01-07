@@ -22,7 +22,7 @@ public class SonarQubeRun {
         String pathString = "./temp/repositories/" + folderName;
         File localPath = new File(pathString);
 
-        String sonarHostUrl = System.getenv("SONAR_HOST_URL"); // ex: http://sonarqube:9000
+        String sonarHostUrl = System.getenv("SONAR_HOST_URL");
         String sonarToken = System.getenv("SONAR_TOKEN");
 
         try {
@@ -45,6 +45,20 @@ public class SonarQubeRun {
             String projectName = folderName;
 
             log.debug("projectKey = {}, projectName = {}", projectKey, projectName);
+
+            log.info("Compilation du projet avant analyse...");
+            ProcessBuilder compilePb = new ProcessBuilder("mvn", "clean", "compile");
+            compilePb.directory(localPath);
+
+            compilePb.inheritIO();
+
+            int compileExit = compilePb.start().waitFor();
+
+            if (compileExit == 0) {
+                sonarService.analyze(localPath.toPath(), projectKey, projectName);
+            } else {
+                log.error("La compilation a échoué, impossible de lancer SonarQube");
+            }
 
             sonarService.analyze(localPath.toPath(), projectKey, projectName);
             SonarQubeApiClient apiClient = new SonarQubeApiClient(sonarHostUrl, sonarToken);
