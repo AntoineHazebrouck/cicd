@@ -1,11 +1,16 @@
 package imt.cicd.data;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StartDockerContainer {
+
+    private static final DockerClient dockerClient =
+        DockerClientFactory.create();
 
     @Builder
     @Getter
@@ -25,14 +30,7 @@ public class StartDockerContainer {
         try {
             var containerName = imageName + "_prod";
 
-            var dockerClient = DockerClientFactory.create();
-
-            dockerClient
-                .removeContainerCmd(containerName)
-                .withForce(true) // Kills it if running
-                // .withRemoveVolumes(true) // Cleans up associated anonymous volumes
-                .exec();
-            log.info("Removed old container if it existed {}", containerName);
+            deleteFormerContainerIfExists(containerName);
 
             var container = dockerClient
                 .createContainerCmd("%s:%s".formatted(imageName, imageTag))
@@ -62,6 +60,22 @@ public class StartDockerContainer {
                 e
             );
             return StartDockerContainerResult.builder().status(false).build();
+        }
+    }
+
+    private static void deleteFormerContainerIfExists(String containerName) {
+        try {
+            dockerClient
+                .removeContainerCmd(containerName)
+                .withForce(true) // Kills it if running
+                // .withRemoveVolumes(true) // Cleans up associated anonymous volumes
+                .exec();
+            log.info("Removed old container if it existed {}", containerName);
+        } catch (NotFoundException e) {
+            log.info(
+                "Container {} was not present, will start creating",
+                containerName
+            );
         }
     }
 }
