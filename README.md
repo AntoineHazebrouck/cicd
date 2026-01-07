@@ -10,7 +10,7 @@
 - user=root
 - password=root
 
-4. Configure Docker to listen on TCP
+4. Configure Docker to be exposed on TCP
 
 ```shell
 nano /lib/systemd/system/docker.service
@@ -23,6 +23,12 @@ Shut down the VM
 In the VM network settings, forward the port 2375 (VM) to 12375 (physical)
 
 Start the VM
+
+5. Make sure to expose the prod app
+
+In the VM network settings, forward the port 8080 (VM) to 18080 (physical)
+
+The prod application you run has to be exposing port 8080
 
 ### Set up tokens
 

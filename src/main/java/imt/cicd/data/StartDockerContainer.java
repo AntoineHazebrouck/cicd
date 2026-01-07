@@ -2,6 +2,8 @@ package imt.cicd.data;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,10 @@ public class StartDockerContainer {
             var container = dockerClient
                 .createContainerCmd("%s:%s".formatted(imageName, imageTag))
                 .withName(containerName)
+                .withHostConfig(
+                    HostConfig.newHostConfig()
+                        .withPortBindings(PortBinding.parse("8080:8080"))
+                )
                 .exec();
 
             dockerClient.startContainerCmd(container.getId()).exec();
