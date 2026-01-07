@@ -11,8 +11,9 @@ public class PipelinesGrid extends Composite<Grid<BuildRecap>> {
 
     @Override
     protected Grid<BuildRecap> initContent() {
-        refresh();
+        grid.getColumns().stream().forEach(column -> column.setResizable(true));
 
+        refresh();
         return grid;
     }
 

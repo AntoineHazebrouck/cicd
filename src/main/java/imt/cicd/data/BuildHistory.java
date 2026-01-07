@@ -27,9 +27,12 @@ public class BuildHistory {
     @Getter
     public static class BuildRecap {
 
-        private final String status; // CLONE_FAIL, BUILD_FAIL, DEPLOY_FAIL, RUN_FAIL, SUCCESS
-        private final String image;
+        private final String status;
+        private final String imageId;
+        private final String imageName;
         private final String imageTag;
+        private final String containerId;
+        private final String containerName;
         private final LocalDateTime time;
     }
 
@@ -37,7 +40,8 @@ public class BuildHistory {
     private static class BuildRecapDto {
 
         private String status;
-        private String image;
+        private String imageId;
+        private String imageName;
         private String imageTag;
         private String time;
     }
@@ -46,7 +50,8 @@ public class BuildHistory {
         if (d == null) return null;
         return BuildRecap.builder()
             .status(d.getStatus())
-            .image(d.getImage())
+            .imageId(d.getImageId())
+            .imageName(d.getImageName())
             .imageTag(d.getImageTag())
             .time(LocalDateTime.parse(d.getTime()))
             .build();
@@ -61,7 +66,8 @@ public class BuildHistory {
         if (r == null) return null;
         var d = new BuildRecapDto();
         d.setStatus(r.getStatus());
-        d.setImage(r.getImage());
+        d.setImageId(r.getImageId());
+        d.setImageName(r.getImageName());
         d.setImageTag(r.getImageTag());
         d.setTime(r.getTime().toString());
         return d;

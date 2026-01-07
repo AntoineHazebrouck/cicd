@@ -15,37 +15,41 @@ public class BuildDockerImage {
     @Getter
     public static class BuildDockerImageResult implements HasStatus {
 
-        private final String image;
+        private final String imageId;
+        private final String imageName;
         private final String imageTag;
         private final Boolean status;
     }
 
     public static BuildDockerImageResult run(String folder) {
+        var imageName = folder.split("/")[folder.split("/").length - 1];
+        var imageTag = "latest";
+
+        log.info("Starting to build {} as {}:{}", folder, imageName, imageTag);
+
         try {
             DockerClient dockerClient = DockerClientFactory.create();
-
-            var imageName = folder.split("/")[folder.split("/").length - 1];
-
-            log.info(
-                "Starting to build {} with image name {}",
-                folder,
-                imageName
-            );
 
             String imageId = dockerClient
                 .buildImageCmd()
                 .withDockerfile(new File(folder + "/" + "Dockerfile"))
                 .withPull(true) // Pull base images if missing
-                .withTags(Collections.singleton(imageName + ":latest"))
+                .withTags(Collections.singleton(imageName + ":" + imageTag))
                 .exec(new BuildImageResultCallback())
                 .awaitImageId();
 
-            log.info("Successfully built image: " + imageId);
+            log.info(
+                "Successfully built image {}:{} with image id {}",
+                imageName,
+                imageTag,
+                imageId
+            );
 
             return BuildDockerImageResult.builder()
                 .status(true)
-                .image(imageId)
-                .imageTag(imageName)
+                .imageId(imageId)
+                .imageTag(imageTag)
+                .imageName(imageName)
                 .build();
         } catch (Exception e) {
             log.info("Error building {}", folder, e);

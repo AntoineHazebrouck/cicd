@@ -4,10 +4,10 @@ import com.vaadin.flow.component.notification.Notification;
 import imt.cicd.data.BuildHistory.BuildRecap;
 import imt.cicd.sonarqube.SonarQubeRun;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FullPipeline {
 
@@ -30,20 +30,31 @@ public class FullPipeline {
             "Failed to build " + githubRepoUrl
         );
 
-        var failures = new ArrayList<String>();
-        if (!cloneResult.getStatus()) failures.add("CLONE_FAILED");
-        if (!sonarResult.getStatus()) failures.add("SONAR_FAILED");
-        if (!buildResult.getStatus()) failures.add("BUILD_FAIL");
+        var startResult = runStep(
+            () ->
+                StartDockerContainer.run(
+                    buildResult.getImageName(),
+                    buildResult.getImageTag()
+                ),
+            "Started in prod " + githubRepoUrl,
+            "Failed to start in prod " + githubRepoUrl
+        );
+
+        var failures = Stream.of(
+            cloneResult.getStatus() ? "CLONE_OK" : "CLONE_FAILED",
+            sonarResult.getStatus() ? "SONAR_OK" : "SONAR_FAILED",
+            buildResult.getStatus() ? "BUILD_OK" : "BUILD_FAILED",
+            startResult.getStatus() ? "START_OK" : "START_FAILED"
+        ).collect(Collectors.joining(", "));
 
         return BuildHistory.add(
             BuildRecap.builder()
-                .status(
-                    failures.isEmpty()
-                        ? "SUCCESS"
-                        : failures.stream().collect(Collectors.joining(", "))
-                )
-                .image(buildResult.getImage())
-                .imageTag(buildResult.getImageTag())
+                .status(failures)
+                .imageId(buildResult.getImageId())
+                .imageName(buildResult.getImageName())
+                .imageTag(buildResult.getImageName())
+                .containerId(startResult.getContainerId())
+                .containerName(startResult.getContainerName())
                 .time(LocalDateTime.now())
                 .build()
         );
