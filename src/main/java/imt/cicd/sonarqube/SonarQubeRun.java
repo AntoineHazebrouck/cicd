@@ -1,18 +1,20 @@
 package imt.cicd.sonarqube;
 
+import imt.cicd.data.HasStatus;
+import java.io.File;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import java.io.File;
-import java.util.Map;
 
 @Slf4j
 public class SonarQubeRun {
 
     @Builder
     @Getter
-    public static class SonarQubeResult {
-        private final boolean status;
+    public static class SonarQubeResult implements HasStatus {
+
+        private final Boolean status;
         private final String qualityGateStatus;
         private final Map<String, String> measures;
     }
@@ -27,15 +29,18 @@ public class SonarQubeRun {
 
         try {
             if (!localPath.exists()) {
-                log.warn("Le dossier {} n'existe pas encore. Assurez-vous que le repo a été cloné.", pathString);
+                log.warn(
+                    "Le dossier {} n'existe pas encore. Assurez-vous que le repo a été cloné.",
+                    pathString
+                );
             }
 
             log.info("Début de l'analyse SonarQube pour {}", repoUrl);
 
             SonarQubeConfig sonarConfig = new SonarQubeConfig(
-                    sonarHostUrl,
-                    sonarToken,
-                    120
+                sonarHostUrl,
+                sonarToken,
+                120
             );
 
             SonarQubeService sonarService = new SonarQubeService(sonarConfig);
@@ -44,33 +49,49 @@ public class SonarQubeRun {
             String projectKey = SonarUtils.generateProjectKey(orgNameBrut);
             String projectName = folderName;
 
-            log.debug("projectKey = {}, projectName = {}", projectKey, projectName);
+            log.debug(
+                "projectKey = {}, projectName = {}",
+                projectKey,
+                projectName
+            );
 
             sonarService.analyze(localPath.toPath(), projectKey, projectName);
-            SonarQubeApiClient apiClient = new SonarQubeApiClient(sonarHostUrl, sonarToken);
+            SonarQubeApiClient apiClient = new SonarQubeApiClient(
+                sonarHostUrl,
+                sonarToken
+            );
 
-            String qualityGateStatus = apiClient.getQualityGateStatus(projectKey);
-            Map<String, String> measures = apiClient.getMeasures(projectKey,
-                    "coverage", "bugs", "code_smells", "vulnerabilities", "duplicated_lines_density");
-
+            String qualityGateStatus = apiClient.getQualityGateStatus(
+                projectKey
+            );
+            Map<String, String> measures = apiClient.getMeasures(
+                projectKey,
+                "coverage",
+                "bugs",
+                "code_smells",
+                "vulnerabilities",
+                "duplicated_lines_density"
+            );
 
             log.info("Analyse SonarQube terminée pour {}.", repoUrl);
 
             return SonarQubeResult.builder()
-                    .status(true)
-                    .qualityGateStatus(qualityGateStatus)
-                    .measures(measures)
-                    .build();
-
+                .status(true)
+                .qualityGateStatus(qualityGateStatus)
+                .measures(measures)
+                .build();
         } catch (Exception e) {
-            log.error("Échec de l'analyse SonarQube pour {} : {}", repoUrl, e.getMessage());
+            log.error(
+                "Échec de l'analyse SonarQube pour {} : {}",
+                repoUrl,
+                e.getMessage()
+            );
 
             return SonarQubeResult.builder()
-                    .status(false)
-                    .qualityGateStatus(null)
-                    .measures(null)
-                    .build();
+                .status(false)
+                .qualityGateStatus(null)
+                .measures(null)
+                .build();
         }
     }
-
 }
