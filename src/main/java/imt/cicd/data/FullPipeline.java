@@ -6,31 +6,34 @@ import imt.cicd.sonarqube.SonarQubeRun;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class FullPipeline {
 
     public static List<BuildRecap> run(String githubRepoUrl) {
-        var cloneResult = CloneRepository.run(githubRepoUrl);
-        if (cloneResult.isStatus()) Notification.show(
-            "Cloned " + githubRepoUrl
+        var cloneResult = runStep(
+            () -> CloneRepository.run(githubRepoUrl),
+            "Cloned " + githubRepoUrl,
+            "Failed to clone " + githubRepoUrl
         );
-        else Notification.show("Failed to clone " + githubRepoUrl);
 
-        var sonarResult = SonarQubeRun.run(githubRepoUrl);
-        if (sonarResult.isStatus()) Notification.show(
-            "SonarQube Scan Validate"
+        var sonarResult = runStep(
+            () -> SonarQubeRun.run(githubRepoUrl),
+            "SonarQube Scan Validate",
+            "Failed to pass SonarQube Scan "
         );
-        else Notification.show("Failed to pass SonarQube Scan ");
 
-        var buildResult = BuildDockerImage.run(cloneResult.getFolder());
-        if (buildResult.isStatus()) Notification.show("Built " + githubRepoUrl);
-        else Notification.show("Failed to build " + githubRepoUrl);
+        var buildResult = runStep(
+            () -> BuildDockerImage.run(cloneResult.getFolder()),
+            "Built " + githubRepoUrl,
+            "Failed to build " + githubRepoUrl
+        );
 
         var failures = new ArrayList<String>();
-        if (!cloneResult.isStatus()) failures.add("CLONE_FAILED");
-        if (!sonarResult.isStatus()) failures.add("SONAR_FAILED");
-        if (!buildResult.isStatus()) failures.add("BUILD_FAIL");
+        if (!cloneResult.getStatus()) failures.add("CLONE_FAILED");
+        if (!sonarResult.getStatus()) failures.add("SONAR_FAILED");
+        if (!buildResult.getStatus()) failures.add("BUILD_FAIL");
 
         return BuildHistory.add(
             BuildRecap.builder()
@@ -44,5 +47,17 @@ public class FullPipeline {
                 .time(LocalDateTime.now())
                 .build()
         );
+    }
+
+    private static <T extends HasStatus> T runStep(
+        Supplier<T> code,
+        String successMessage,
+        String failureMessage
+    ) {
+        var result = code.get();
+        if (result.getStatus()) Notification.show(successMessage);
+        else Notification.show(failureMessage);
+
+        return result;
     }
 }

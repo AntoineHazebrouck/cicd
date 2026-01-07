@@ -54,6 +54,7 @@ services:
       - ci-network
     ports:
       - "8080:8080"
+      - "12375:12375" # prod VM exposes port 12375
 
 volumes:
   sonar_db:

@@ -2,11 +2,6 @@ package imt.cicd.data;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
 import java.util.Collections;
 import lombok.Builder;
@@ -18,30 +13,16 @@ public class BuildDockerImage {
 
     @Builder
     @Getter
-    public static class BuildDockerImageResult {
+    public static class BuildDockerImageResult implements HasStatus {
 
         private final String image;
         private final String imageTag;
-        private final boolean status;
+        private final Boolean status;
     }
 
     public static BuildDockerImageResult run(String folder) {
         try {
-            String dockerHost = "unix:///var/run/docker.sock";
-
-            DockerClientConfig config =
-                DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost(dockerHost).build();
-
-            DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
-                .dockerHost(config.getDockerHost())
-                .sslConfig(config.getSSLConfig())
-                .maxConnections(100)
-                .build();
-
-            DockerClient dockerClient = DockerClientImpl.getInstance(
-                config,
-                httpClient
-            );
+            DockerClient dockerClient = DockerClientFactory.create();
 
             var imageName = folder.split("/")[folder.split("/").length - 1];
 

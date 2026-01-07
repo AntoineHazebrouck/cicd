@@ -7,40 +7,22 @@
 1. Download [virtualbox](https://www.virtualbox.org/wiki/Downloads)
 2. Download the pre-set up OS : https://fromsmash.com/vm-pour-antoine, and unzip it.
 3. Open the OS into virtualbox and log in with the following credentials :
-- user=user
-- password=user
-4. Authenticate as root : 
+- user=root
+- password=root
 
-```shell
-su -
-```
-
-The password is "root"
-
-5. Find the VM's ip address : 
-
-```shell
-ip addr show
-```
-
-Look for enp0s3
-
-10.0.2.15
-
-6. Configure Docker to listen on TCP
+4. Configure Docker to listen on TCP
 
 ```shell
 nano /lib/systemd/system/docker.service
 ```
 
-Append this "-H tcp://0.0.0.0:2375" to the line that starts with "ExecStart"
+Append this "-H tcp://0.0.0.0:2375" to the end of the line that starts with "ExecStart"
 
-Restart Docker :
+Shut down the VM
 
-```shell
-systemctl daemon-reload
-systemctl restart docker
-```
+In the VM network settings, forward the port 2375 (VM) to 12375 (physical)
+
+Start the VM
 
 
 #### Run the application
