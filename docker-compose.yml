@@ -41,6 +41,8 @@ services:
     environment:
       SONAR_HOST_URL: http://sonarqube:9000
       SONAR_TOKEN: sqa_9ca0456b1809f3199e79cc88086c353f92b594aa
+      GITHUB_CICD_TOKEN: ...
+      GITHUB_WEBHOOK_SECRET: ...
     volumes:
       - ./workspaces:/workspaces
       - /var/run/docker.sock:/var/run/docker.sock
