@@ -43,6 +43,8 @@ public class BuildHistory {
         private String imageId;
         private String imageName;
         private String imageTag;
+        private String containerId;
+        private String containerName;
         private String time;
     }
 
@@ -53,6 +55,8 @@ public class BuildHistory {
             .imageId(d.getImageId())
             .imageName(d.getImageName())
             .imageTag(d.getImageTag())
+            .containerId(d.getContainerId())
+            .containerName(d.getContainerName())
             .time(LocalDateTime.parse(d.getTime()))
             .build();
     }
@@ -69,6 +73,8 @@ public class BuildHistory {
         d.setImageId(r.getImageId());
         d.setImageName(r.getImageName());
         d.setImageTag(r.getImageTag());
+        d.setContainerId(r.getContainerId());
+        d.setContainerName(r.getContainerName());
         d.setTime(r.getTime().toString());
         return d;
     }
