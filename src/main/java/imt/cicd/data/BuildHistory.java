@@ -34,6 +34,13 @@ public class BuildHistory {
         private final String containerId;
         private final String containerName;
         private final LocalDateTime time;
+
+        private final String security;
+        private final String reliability;
+        private final String maintainability;
+        private final String hotspots;
+        private final String coverage;
+        private final String duplications;
     }
 
     @Data
@@ -46,6 +53,13 @@ public class BuildHistory {
         private String containerId;
         private String containerName;
         private String time;
+
+        private String security;
+        private String reliability;
+        private String maintainability;
+        private String hotspots;
+        private String coverage;
+        private String duplications;
     }
 
     private static BuildRecap map(BuildRecapDto d) {
@@ -57,6 +71,12 @@ public class BuildHistory {
             .imageTag(d.getImageTag())
             .containerId(d.getContainerId())
             .containerName(d.getContainerName())
+            .security(d.getSecurity())
+            .reliability(d.getReliability())
+            .maintainability(d.getMaintainability())
+            .hotspots(d.getHotspots())
+            .coverage(d.getCoverage())
+            .duplications(d.getDuplications())
             .time(LocalDateTime.parse(d.getTime()))
             .build();
     }
@@ -75,6 +95,12 @@ public class BuildHistory {
         d.setImageTag(r.getImageTag());
         d.setContainerId(r.getContainerId());
         d.setContainerName(r.getContainerName());
+        d.setSecurity(r.getSecurity());
+        d.setReliability(r.getReliability());
+        d.setMaintainability(r.getMaintainability());
+        d.setHotspots(r.getHotspots());
+        d.setCoverage(r.getCoverage());
+        d.setDuplications(r.getDuplications());
         d.setTime(r.getTime().toString());
         return d;
     }

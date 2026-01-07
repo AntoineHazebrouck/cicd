@@ -47,24 +47,16 @@ public class SonarQubeApiClient {
         return root.path("projectStatus").path("status").asText();
     }
 
-    public Map<String, String> getMeasures(String projectKey, String coverage, String bugs, String codeSmells, String vulnerabilities, String duplicatedLinesDensity) throws IOException, InterruptedException {
-        StringBuilder keysBuilder = new StringBuilder();
-        for (String k : new String[]{coverage, bugs, codeSmells, vulnerabilities, duplicatedLinesDensity}) {
-            if (k != null && !k.isEmpty()) {
-                if (keysBuilder.length() > 0) keysBuilder.append(',');
-                keysBuilder.append(k);
-            }
+    // Dans SonarQubeApiClient.java
+    public Map<String, String> getMeasures(String projectKey, String... metricKeys) throws IOException, InterruptedException {
+        if (metricKeys == null || metricKeys.length == 0) {
+            return new HashMap<>();
         }
 
-        Map<String, String> measures = new HashMap<>();
-        if (keysBuilder.length() == 0) {
-            return measures; // nothing requested
-        }
-
-        String metricKeys = keysBuilder.toString();
+        String joinedKeys = String.join(",", metricKeys);
         String uri = hostUrl + "/api/measures/component?component=" +
                 URLEncoder.encode(projectKey, StandardCharsets.UTF_8) +
-                "&metricKeys=" + URLEncoder.encode(metricKeys, StandardCharsets.UTF_8);
+                "&metricKeys=" + URLEncoder.encode(joinedKeys, StandardCharsets.UTF_8);
 
         String auth = Base64.getEncoder().encodeToString((token + ":").getBytes(StandardCharsets.UTF_8));
 
@@ -76,7 +68,10 @@ public class SonarQubeApiClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         JsonNode root = mapper.readTree(response.body());
+
+        Map<String, String> measures = new HashMap<>();
         JsonNode measuresNode = root.path("component").path("measures");
+
         if (measuresNode.isArray()) {
             for (JsonNode m : measuresNode) {
                 String metric = m.path("metric").asText(null);
@@ -86,8 +81,6 @@ public class SonarQubeApiClient {
                 }
             }
         }
-
         return measures;
-
     }
 }

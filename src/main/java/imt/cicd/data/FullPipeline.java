@@ -47,6 +47,8 @@ public class FullPipeline {
             startResult.getStatus() ? "START_OK" : "START_FAILED"
         ).collect(Collectors.joining(", "));
 
+        var measures = sonarResult.getMeasures();
+
         return BuildHistory.add(
             BuildRecap.builder()
                 .status(failures)
@@ -55,6 +57,12 @@ public class FullPipeline {
                 .imageTag(buildResult.getImageName())
                 .containerId(startResult.getContainerId())
                 .containerName(startResult.getContainerName())
+                .security(measures.getOrDefault("security_rating", "0"))
+                .reliability(measures.getOrDefault("reliability_rating", "0"))
+                .maintainability(measures.getOrDefault("sqale_rating", "0"))
+                .hotspots(measures.getOrDefault("security_review_rating", "0"))
+                .coverage(measures.getOrDefault("coverage", "0.0") + "%")
+                .duplications(measures.getOrDefault("duplicated_lines_density", "0.0") + "%")
                 .time(LocalDateTime.now())
                 .build()
         );

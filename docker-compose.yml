@@ -40,9 +40,9 @@ services:
       - sonarqube
     environment:
       SONAR_HOST_URL: http://sonarqube:9000
-      SONAR_TOKEN: ...
-      GITHUB_CICD_TOKEN: ...
-      GITHUB_WEBHOOK_SECRET: ...
+      SONAR_TOKEN: sqa_9ca0456b1809f3199e79cc88086c353f92b594aa
+      GITHUB_CICD_TOKEN: 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
+      GITHUB_WEBHOOK_SECRET: lemeGasecreeeet
       LOGGING_FILE_NAME: /app/logs/application.log
       DOCKER_HOST: unix:///var/run/docker.sock
     user: root

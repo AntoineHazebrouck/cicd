@@ -80,11 +80,12 @@ public class SonarQubeRun {
             );
             Map<String, String> measures = apiClient.getMeasures(
                 projectKey,
-                "coverage",
-                "bugs",
-                "code_smells",
-                "vulnerabilities",
-                "duplicated_lines_density"
+                    "security_rating",     // Security
+                    "reliability_rating",              // Reliability
+                    "sqale_rating",            // Maintainability
+                    "security_review_rating",                   // Hotspots
+                    "coverage",                                 // Coverage
+                    "duplicated_lines_density"
             );
 
             log.info("Analyse SonarQube terminée pour {}.", repoUrl);
