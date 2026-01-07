@@ -12,7 +12,9 @@ import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BuildHistory {
 
     private static final Path PATH = Paths.get(
@@ -71,11 +73,15 @@ public class BuildHistory {
     }
 
     public static List<BuildRecap> history() {
-        if (!Files.exists(PATH)) throw new IllegalStateException(
-            PATH.toString() + " should exist"
-        );
-
         try {
+            if (!Files.exists(PATH)) {
+                log.info("file was not found {}", PATH.toString());
+                Files.createDirectories(PATH.getParent());
+                Files.write(PATH, "[]".getBytes());
+
+                log.info("create file {}", PATH.toString());
+            }
+
             byte[] bytes = Files.readAllBytes(PATH);
             var json = new ObjectMapper();
             var data = json.readValue(
