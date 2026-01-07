@@ -2,7 +2,7 @@
 
 ## Run this application locally
 
-#### Set up the fake production env TODO some steps can be included in the prebuilt VM
+### Set up the fake production env TODO some steps can be included in the prebuilt VM
 
 1. Download [virtualbox](https://www.virtualbox.org/wiki/Downloads)
 2. Download the pre-set up OS : https://fromsmash.com/vm-pour-antoine, and unzip it.
@@ -24,12 +24,24 @@ In the VM network settings, forward the port 2375 (VM) to 12375 (physical)
 
 Start the VM
 
+### Set up tokens
 
-#### Run the application
+```shell
+docker compose up --build
+```
+
+Open sonar at [http://localhost:9000](http://localhost:9000) and login :
+- username=admin
+- password=admin
+
+Go to My account > Security, generate a "Global Analysis Token"
 
 In [docker-compose.yml](./docker-compose.yml), set the following variables :
-- GITHUB_CICD_TOKEN
-- GITHUB_WEBHOOK_SECRET
+- SONAR_TOKEN="the token you generated"
+- GITHUB_CICD_TOKEN="ask the github admin"
+- GITHUB_WEBHOOK_SECRET="ask the github admin"
+
+### Run the application
 
 ```shell
 docker compose up --build
