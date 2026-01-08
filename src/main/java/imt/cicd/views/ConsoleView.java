@@ -3,6 +3,7 @@ package imt.cicd.views;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -22,11 +23,13 @@ public class ConsoleView extends Composite<VerticalLayout> {
     protected VerticalLayout initContent() {
         return new VerticalLayout(
             new H1("Console"),
-                stepper,
-            new Button("Refresh", event -> {
-                pipelines.refresh();
-                stepper.reset();
-            }),
+            new HorizontalLayout(
+                new Button("Refresh", event -> {
+                    pipelines.refresh();
+                    stepper.reset();
+                }),
+                stepper
+            ),
             pipelines
         );
     }
