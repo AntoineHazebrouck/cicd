@@ -12,7 +12,7 @@ public class PipelineStepper extends HorizontalLayout {
     private final StepItem build = new StepItem("Build");
     private final StepItem deploy = new StepItem("Deploy");
     private final StepItem health = new StepItem("Health Check");
-    private final StepItem rollback = new StepItem("Health Check");
+    private final StepItem rollback = new StepItem("RollBack");
 
     public PipelineStepper() {
         setWidthFull();
