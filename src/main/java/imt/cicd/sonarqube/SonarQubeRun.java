@@ -58,7 +58,7 @@ public class SonarQubeRun {
             sonarService.analyze(localPath.toPath(), projectKey, projectName);
 
             log.info("Attente du calcul des mesures par le serveur...");
-            
+
             Thread.sleep(5000);
 
             SonarQubeApiClient apiClient = new SonarQubeApiClient(
