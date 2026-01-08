@@ -18,12 +18,15 @@ public class SonarQubeScannerService {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "mvn",
+                    "clean",
+                    "verify",
                     "org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar",
                     "-Dsonar.projectKey=" + projectKey,
                     "-Dsonar.projectName=" + projectName,
                     "-Dsonar.host.url=" + config.getHostUrl(),
                     "-Dsonar.login=" + config.getToken(),
-                    "-Dsonar.java.binaries=target/classes"
+                    "-Dsonar.java.binaries=target/classes",
+                    "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
             );
 
             processBuilder.directory(projectDir.toFile());

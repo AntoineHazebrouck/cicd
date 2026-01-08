@@ -55,22 +55,12 @@ public class SonarQubeRun {
                 projectName
             );
 
-            // TODO, it should be containerized so that it does not use the server's maven
-            log.info("Compilation du projet avant analyse...");
-            ProcessBuilder compilePb = new ProcessBuilder("mvn", "clean", "compile");
-            compilePb.directory(localPath);
-
-            compilePb.inheritIO();
-
-            int compileExit = compilePb.start().waitFor();
-
-            if (compileExit == 0) {
-                sonarService.analyze(localPath.toPath(), projectKey, projectName);
-            } else {
-                log.error("La compilation a échoué, impossible de lancer SonarQube");
-            }
-
             sonarService.analyze(localPath.toPath(), projectKey, projectName);
+
+            log.info("Attente du calcul des mesures par le serveur...");
+            
+            Thread.sleep(5000);
+
             SonarQubeApiClient apiClient = new SonarQubeApiClient(
                 sonarHostUrl,
                 sonarToken
