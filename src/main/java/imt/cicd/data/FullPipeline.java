@@ -1,110 +1,128 @@
 package imt.cicd.data;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
+import imt.cicd.data.BuildDockerImage.BuildDockerImageResult;
 import imt.cicd.data.BuildHistory.BuildRecap;
+import imt.cicd.data.CheckAppHealth.CheckAppHealthResult;
+import imt.cicd.data.CloneRepository.CloneRepositoryResult;
+import imt.cicd.data.StartDockerContainer.StartDockerContainerResult;
+import imt.cicd.data.orchestration.ChainedOrchestrator;
+import imt.cicd.data.orchestration.ChainedOrchestrator.StepsHandler;
+import imt.cicd.data.orchestration.StepCallback;
 import imt.cicd.sonarqube.SonarQubeRun;
+import imt.cicd.sonarqube.SonarQubeRun.SonarQubeResult;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class FullPipeline {
 
     public static List<BuildRecap> run(String githubRepoUrl) {
-        return run(githubRepoUrl, null,(idx, res) -> {});
+        return run(githubRepoUrl, (idx, res) -> {});
     }
 
-    public static List<BuildRecap> run(String githubRepoUrl, UI ui, StepCallback callback) {
-        var cloneResult = runStep(ui,
-            () -> CloneRepository.run(githubRepoUrl),
-            "Cloned " + githubRepoUrl,
-            "Failed to clone " + githubRepoUrl
-        );
-        callback.onUpdate(0, cloneResult.getStatus());
+    public static List<BuildRecap> run(
+        String githubRepoUrl,
+        StepCallback callback
+    ) {
+        log.info("Starting pipline with repo {}", githubRepoUrl);
+        var pipeline = ChainedOrchestrator.withStepCompletionCallback(callback)
+            .step(
+                () -> CloneRepository.run(githubRepoUrl),
+                StepsHandler::stopThere
+            )
+            .step(
+                steps -> SonarQubeRun.run(githubRepoUrl),
+                StepsHandler::stopThere
+            )
+            .step(
+                steps -> {
+                    var clone = steps.find(CloneRepositoryResult.class);
+                    return BuildDockerImage.run(clone.getFolder());
+                },
+                StepsHandler::stopThere
+            )
+            .step(
+                steps -> {
+                    var build = steps.find(BuildDockerImageResult.class);
+                    return StartDockerContainer.run(
+                        build.getImageName(),
+                        build.getImageTag()
+                    );
+                },
+                StepsHandler::stopThere
+            )
+            .step(steps -> CheckAppHealth.run(), StepsHandler::stopThere)
+            .finish();
 
-        var sonarResult = runStep(ui,
-            () -> SonarQubeRun.run(githubRepoUrl),
-            "SonarQube Scan Validate",
-            "Failed to pass SonarQube Scan "
+        log.info(
+            "Pipeline steps run : {}",
+            pipeline
+                .getAllSteps()
+                .stream()
+                .map(HasStatus::getStatus)
+                .map(Object::toString)
+                .collect(Collectors.joining(", "))
         );
-        callback.onUpdate(1, sonarResult.getStatus());
-
-        var buildResult = runStep(ui,
-            () -> BuildDockerImage.run(cloneResult.getFolder()),
-            "Built " + githubRepoUrl,
-            "Failed to build " + githubRepoUrl
-        );
-        callback.onUpdate(2, buildResult.getStatus());
-
-        var startResult = runStep(ui,
-            () ->
-                StartDockerContainer.run(
-                    buildResult.getImageName(),
-                    buildResult.getImageTag()
-                ),
-            "Started in prod " + githubRepoUrl,
-            "Failed to start in prod " + githubRepoUrl
-        );
-        callback.onUpdate(3, startResult.getStatus());
-
-        var healthCheckResult = runStep(ui,
-            () -> CheckAppHealth.run(),
-            "Health check was ok for " + githubRepoUrl,
-            "Health check failed for " + githubRepoUrl
-        );
-        callback.onUpdate(4, healthCheckResult.getStatus());
-
 
         var failures = Stream.of(
-            cloneResult.getStatus() ? "CLONE_OK" : "CLONE_FAILED",
-            sonarResult.getStatus() ? "SONAR_OK" : "SONAR_FAILED",
-            buildResult.getStatus() ? "BUILD_OK" : "BUILD_FAILED",
-            startResult.getStatus() ? "START_OK" : "START_FAILED",
-            healthCheckResult.getStatus() ? "HEALTH_OK" : "HEALTH_FAILED"
+            pipeline.formattedStepStatus(CloneRepositoryResult.class, "CLONE"),
+            pipeline.formattedStepStatus(SonarQubeResult.class, "SONAR"),
+            pipeline.formattedStepStatus(BuildDockerImageResult.class, "BUILD"),
+            pipeline.formattedStepStatus(
+                StartDockerContainerResult.class,
+                "START"
+            ),
+            pipeline.formattedStepStatus(CheckAppHealthResult.class, "HEALTH")
         ).collect(Collectors.joining(", "));
 
-        var measures = sonarResult.getMeasures();
+        var measures = pipeline
+            .findOptional(SonarQubeResult.class)
+            .map(sonar -> sonar.getMeasures())
+            .orElse(Map.of());
 
-        return BuildHistory.add(
+        var buildResult = pipeline.findOptional(BuildDockerImageResult.class);
+        var startResult = pipeline.findOptional(
+            StartDockerContainerResult.class
+        );
+
+        var history = BuildHistory.add(
             BuildRecap.builder()
                 .status(failures)
-                .imageId(buildResult.getImageId())
-                .imageName(buildResult.getImageName())
-                .imageTag(buildResult.getImageName())
-                .containerId(startResult.getContainerId())
-                .containerName(startResult.getContainerName())
+                .imageId(
+                    buildResult.map(build -> build.getImageId()).orElse(null)
+                )
+                .imageName(
+                    buildResult.map(build -> build.getImageName()).orElse(null)
+                )
+                .imageTag(
+                    buildResult.map(build -> build.getImageTag()).orElse(null)
+                )
+                .containerId(
+                    startResult
+                        .map(start -> start.getContainerId())
+                        .orElse(null)
+                )
+                .containerName(
+                    startResult
+                        .map(start -> start.getContainerName())
+                        .orElse(null)
+                )
                 .security(measures.getOrDefault("security_rating", "0"))
                 .reliability(measures.getOrDefault("reliability_rating", "0"))
                 .maintainability(measures.getOrDefault("sqale_rating", "0"))
                 .hotspots(measures.getOrDefault("security_review_rating", "0"))
                 .coverage(measures.getOrDefault("coverage", "0.0") + "%")
-                .duplications(measures.getOrDefault("duplicated_lines_density", "0.0") + "%")
+                .duplications(
+                    measures.getOrDefault("duplicated_lines_density", "0.0") +
+                    "%"
+                )
                 .time(LocalDateTime.now())
                 .build()
         );
-    }
-
-    private static <T extends HasStatus> T runStep(
-        UI ui,
-        Supplier<T> code,
-        String successMessage,
-        String failureMessage
-
-    ) {
-        var result = code.get();
-
-        if (ui != null) {
-            ui.access(() -> {
-                Notification.show(result.getStatus() ? successMessage : failureMessage);
-            });
-        }
-
-        return result;
-    }
-
-    public interface StepCallback {
-        void onUpdate(int stepIndex, boolean success);
+        return history;
     }
 }
