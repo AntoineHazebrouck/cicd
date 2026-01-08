@@ -47,6 +47,23 @@ In [docker-compose.yml](./docker-compose.yml), set the following variables :
 - GITHUB_CICD_TOKEN="ask the github admin"
 - GITHUB_WEBHOOK_SECRET="ask the github admin"
 
+### Set up the tunnel
+
+We need to use a tunnel so that our webhook can contact the application locally.
+
+1. Install [cloudflare tunnel](https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe)
+2. Open a terminal and launch the command :
+```shell
+cloudflared tunnel --url http://127.0.0.1:8080/
+```
+to create a tunnel through which the webhook will contact the app.
+
+3. After the command is executed, a url will appear. Copy it.
+4. In the Github repository of your app, go to Settings > Webhooks
+5. Click edit
+6. Paste the url you copied in **Payload URL \***
+7. Click Update webhook
+
 ### Run the application
 
 ```shell
