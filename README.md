@@ -71,3 +71,8 @@ docker compose up --build
 ```
 
 Open the app at [http://localhost:8080](http://localhost:8080)
+
+### Schemas
+
+[local setup](./docs/local-setup-schema.png)
+[pipeline](./docs/pipeline-schema.png)
