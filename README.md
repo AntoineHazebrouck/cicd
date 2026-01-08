@@ -61,7 +61,7 @@ to create a tunnel through which the webhook will contact the app.
 3. After the command is executed, a url will appear. Copy it.
 4. In the Github repository of your app, go to Settings > Webhooks
 5. Click edit
-6. Paste the url you copied in **Payload URL \***
+6. Paste the url you copied in **Payload URL \*** and add /api/webhooks/push at the end
 7. Click Update webhook
 
 ### Run the application
