@@ -65,6 +65,10 @@ public class ChainedOrchestrator {
             stop = true;
         }
 
+        public void keepGoing() {
+            stop = false;
+        }
+
         public boolean isStopped() {
             return stop;
         }

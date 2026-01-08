@@ -25,17 +25,17 @@ public class StartDockerContainer {
 
     public static StartDockerContainerResult run(
         String imageName,
-        String imageTag
+        String imageTag,
+        String imageId
     ) {
         log.info("Starting docker container {}:{}", imageName, imageTag);
 
         try {
             var containerName = imageName + "_prod";
-
             deleteFormerContainerIfExists(containerName);
 
             var container = dockerClient
-                .createContainerCmd("%s:%s".formatted(imageName, imageTag))
+                .createContainerCmd(imageId)
                 .withName(containerName)
                 .withHostConfig(
                     HostConfig.newHostConfig()
@@ -50,7 +50,7 @@ public class StartDockerContainer {
                 imageName,
                 imageTag,
                 container.getId(),
-                containerName
+                "_prod"
             );
 
             return StartDockerContainerResult.builder()

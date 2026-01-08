@@ -4,6 +4,7 @@ import imt.cicd.data.BuildDockerImage.BuildDockerImageResult;
 import imt.cicd.data.BuildHistory.BuildRecap;
 import imt.cicd.data.CheckAppHealth.CheckAppHealthResult;
 import imt.cicd.data.CloneRepository.CloneRepositoryResult;
+import imt.cicd.data.RollbackToLastContainer.RollbackToLastContainerResult;
 import imt.cicd.data.StartDockerContainer.StartDockerContainerResult;
 import imt.cicd.data.orchestration.ChainedOrchestrator;
 import imt.cicd.data.orchestration.ChainedOrchestrator.StepsHandler;
@@ -28,7 +29,7 @@ public class FullPipeline {
         String githubRepoUrl,
         StepCallback callback
     ) {
-        log.info("Starting pipline with repo {}", githubRepoUrl);
+        log.info("Starting pipeline with repo {}", githubRepoUrl);
         var pipeline = ChainedOrchestrator.withStepCompletionCallback(callback)
             .step(
                 () -> CloneRepository.run(githubRepoUrl),
@@ -50,12 +51,21 @@ public class FullPipeline {
                     var build = steps.find(BuildDockerImageResult.class);
                     return StartDockerContainer.run(
                         build.getImageName(),
-                        build.getImageTag()
+                        build.getImageTag(),
+                        build.getImageId()
                     );
                 },
                 StepsHandler::stopThere
             )
-            .step(steps -> CheckAppHealth.run(), StepsHandler::stopThere)
+            .step(steps -> CheckAppHealth.run(), StepsHandler::keepGoing)
+            .step(
+                steps -> {
+                    var health = steps.find(CheckAppHealthResult.class);
+
+                    return RollbackToLastContainer.run(health.getStatus());
+                },
+                StepsHandler::stopThere
+            )
             .finish();
 
         log.info(
@@ -76,7 +86,11 @@ public class FullPipeline {
                 StartDockerContainerResult.class,
                 "START"
             ),
-            pipeline.formattedStepStatus(CheckAppHealthResult.class, "HEALTH")
+            pipeline.formattedStepStatus(CheckAppHealthResult.class, "HEALTH"),
+            pipeline.formattedStepStatus(
+                RollbackToLastContainerResult.class,
+                "ROLLBACK"
+            )
         ).collect(Collectors.joining(", "));
 
         var measures = pipeline
@@ -109,6 +123,12 @@ public class FullPipeline {
                 .containerName(
                     startResult
                         .map(start -> start.getContainerName())
+                        .orElse(null)
+                )
+                .rollbackContainerId(
+                    pipeline
+                        .findOptional(RollbackToLastContainerResult.class)
+                        .map(start -> start.getContainerId())
                         .orElse(null)
                 )
                 .security(measures.getOrDefault("security_rating", "0"))

@@ -33,6 +33,7 @@ public class BuildHistory {
         private final String imageTag;
         private final String containerId;
         private final String containerName;
+        private final String rollbackContainerId;
         private final LocalDateTime time;
 
         private final String security;
@@ -52,6 +53,7 @@ public class BuildHistory {
         private String imageTag;
         private String containerId;
         private String containerName;
+        private String rollbackContainerId;
         private String time;
 
         private String security;
@@ -71,6 +73,7 @@ public class BuildHistory {
             .imageTag(d.getImageTag())
             .containerId(d.getContainerId())
             .containerName(d.getContainerName())
+            .rollbackContainerId(d.getRollbackContainerId())
             .security(d.getSecurity())
             .reliability(d.getReliability())
             .maintainability(d.getMaintainability())
@@ -95,6 +98,7 @@ public class BuildHistory {
         d.setImageTag(r.getImageTag());
         d.setContainerId(r.getContainerId());
         d.setContainerName(r.getContainerName());
+        d.setRollbackContainerId(r.getRollbackContainerId());
         d.setSecurity(r.getSecurity());
         d.setReliability(r.getReliability());
         d.setMaintainability(r.getMaintainability());

@@ -33,6 +33,10 @@ public class PipelinesGrid extends Composite<Grid<BuildRecap>> {
         addStandardCol(BuildRecap::getImageId, "Image id");
         addStandardCol(BuildRecap::getContainerName, "Container name");
         addStandardCol(BuildRecap::getContainerId, "Container id");
+        addStandardCol(
+            BuildRecap::getRollbackContainerId,
+            "Rollback container id"
+        );
 
         addStandardCol(BuildRecap::getSecurity, "Security");
         addStandardCol(BuildRecap::getReliability, "Reliability");
