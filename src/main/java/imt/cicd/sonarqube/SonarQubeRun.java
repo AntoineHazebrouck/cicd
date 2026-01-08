@@ -55,6 +55,7 @@ public class SonarQubeRun {
                 projectName
             );
 
+            // TODO, it should be containerized so that it does not use the server's maven
             log.info("Compilation du projet avant analyse...");
             ProcessBuilder compilePb = new ProcessBuilder("mvn", "clean", "compile");
             compilePb.directory(localPath);
