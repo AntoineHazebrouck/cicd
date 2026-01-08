@@ -40,11 +40,18 @@ public class FullPipeline {
             "Failed to start in prod " + githubRepoUrl
         );
 
+        var healthCheckResult = runStep(
+            () -> CheckAppHealth.run(),
+            "Health check was ok for " + githubRepoUrl,
+            "Health check failed for " + githubRepoUrl
+        );
+
         var failures = Stream.of(
             cloneResult.getStatus() ? "CLONE_OK" : "CLONE_FAILED",
             sonarResult.getStatus() ? "SONAR_OK" : "SONAR_FAILED",
             buildResult.getStatus() ? "BUILD_OK" : "BUILD_FAILED",
-            startResult.getStatus() ? "START_OK" : "START_FAILED"
+            startResult.getStatus() ? "START_OK" : "START_FAILED",
+            healthCheckResult.getStatus() ? "HEALTH_OK" : "HEALTH_FAILED"
         ).collect(Collectors.joining(", "));
 
         var measures = sonarResult.getMeasures();
@@ -62,7 +69,10 @@ public class FullPipeline {
                 .maintainability(measures.getOrDefault("sqale_rating", "0"))
                 .hotspots(measures.getOrDefault("security_review_rating", "0"))
                 .coverage(measures.getOrDefault("coverage", "0.0") + "%")
-                .duplications(measures.getOrDefault("duplicated_lines_density", "0.0") + "%")
+                .duplications(
+                    measures.getOrDefault("duplicated_lines_density", "0.0") +
+                    "%"
+                )
                 .time(LocalDateTime.now())
                 .build()
         );

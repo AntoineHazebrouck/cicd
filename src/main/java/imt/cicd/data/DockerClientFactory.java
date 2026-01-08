@@ -10,13 +10,12 @@ import com.github.dockerjava.transport.DockerHttpClient;
 public class DockerClientFactory {
 
     public static DockerClient create() {
-        var physicalMachineHost = "host.docker.internal";
         var vmForwardedPort = "12375";
         DockerClientConfig config =
             DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(
                     "tcp://%s:%s".formatted(
-                            physicalMachineHost,
+                            Constants.PHYSICAL_MACHINE_HOST,
                             vmForwardedPort
                         )
                 )
