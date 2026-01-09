@@ -30,7 +30,11 @@ public class FullPipeline {
         StepCallback callback
     ) {
         log.info("Starting pipeline with repo {}", githubRepoUrl);
-        var pipeline = ChainedOrchestrator.withStepCompletionCallback(callback)
+        StepCallback compositeCallback = (idx, res) -> {
+            callback.update(idx, res);
+            Broadcaster.broadcast(idx, res);
+        };
+        var pipeline = ChainedOrchestrator.withStepCompletionCallback(compositeCallback)
             .step(
                 () -> CloneRepository.run(githubRepoUrl),
                 StepsHandler::stopThere
