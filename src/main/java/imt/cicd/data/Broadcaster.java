@@ -1,5 +1,6 @@
 package imt.cicd.data;
 
+import com.vaadin.flow.shared.Registration; // Import nécessaire pour Vaadin
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -8,12 +9,9 @@ public class Broadcaster {
 
     public record StepUpdate(int index, boolean success) {}
 
-    public static void register(Consumer<StepUpdate> listener) {
+    public static Registration register(Consumer<StepUpdate> listener) {
         listeners.add(listener);
-    }
-
-    public static void unregister(Consumer<StepUpdate> listener) {
-        listeners.remove(listener);
+        return () -> listeners.remove(listener);
     }
 
     public static void broadcast(int index, boolean success) {
